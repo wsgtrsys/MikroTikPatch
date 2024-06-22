@@ -108,7 +108,8 @@ jobs:
     - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-mmips.npk
       run: |
         sudo wget -nv -O routeros-$LATEST_VERSION-mmips.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-mmips.npk
-        sudo -E python3 patch.py npk routeros-$LATEST_VERSION-mmips.npk
+#        sudo -E python3 patch.py npk routeros-$LATEST_VERSION-mmips.npk
+        sudo -E python3 npk.py sign routeros-$LATEST_VERSION-mmips.npk
 
     - name: Create Release tag ${{ env.LATEST_VERSION }}
       uses: softprops/action-gh-release@v2
