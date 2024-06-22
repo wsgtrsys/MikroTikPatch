@@ -58,7 +58,7 @@ jobs:
     needs: Create_SquashFS
     strategy:
       matrix:
-        channel: [stable, testing]
+        channel: [stable]
     env:
       TZ: 'Asia/Shanghai'
       LATEST_VERSION_URL: 'https://upgrade.mikrotik.com/routeros/NEWESTa7.'
