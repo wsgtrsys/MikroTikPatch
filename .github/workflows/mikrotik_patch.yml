@@ -154,89 +154,6 @@ jobs:
                     ./new_iso
         sudo rm -rf ./new_iso
 
-    - name: Get chr-${{ env.LATEST_VERSION }}.img
-      run: |
-        sudo wget -nv -O chr-$LATEST_VERSION.img.zip https://download.mikrotik.com/routeros/$LATEST_VERSION/chr-$LATEST_VERSION.img.zip
-        sudo unzip chr-$LATEST_VERSION.img.zip
-        sudo rm chr-$LATEST_VERSION.img.zip
-        
-    - name: Patch chr-${{ env.LATEST_VERSION }}.img
-      run: |
-        sudo modprobe nbd
-        sudo apt install -y qemu-utils extlinux > /dev/null
-        sudo qemu-nbd -c /dev/nbd0 -f raw chr-$LATEST_VERSION.img
-        sudo mkdir -p ./img/{efi,routeros}
-        sudo mkfs.vfat -n "Boot" /dev/nbd0p1
-        sudo mount /dev/nbd0p1 ./img/efi/
-        sudo mkdir -p ./img/efi/EFI/BOOT/
-        sudo cp linux ./img/efi/EFI/BOOT/BOOTX64.EFI
-        sudo mkdir -p ./img/efi/boot/
-        xxd -p -u /usr/bin/extlinux | tr -d '\n' | sed  \
-          -e 's/0D0A5359534C494E555820362E30342000/4C6F6164696E672073797374656D0D0A00/g' \
-          -e 's/20436F707972696768742028432920313939342D3230313520482E20506574657220416E76696E20657420616C0D0A/00436F707972696768742028432920313939342D3230313520482E20506574657220416E76696E20657420616C0D0A/g' \
-          -e 's/203230323130383131/003230323130383131/g' \
-          -e 's/43485300454444/00485300004444/g' | xxd -p -r >extlinux
-        sudo ./extlinux --install -H 64 -S 32 ./img/efi/boot/
-        echo -e "default system\nlabel system\n\tkernel /EFI/BOOT/BOOTX64.EFI\n\tappend load_ramdisk=1 root=/dev/ram0 quiet" > syslinux.cfg
-        sudo cp syslinux.cfg ./img/efi/boot/
-        sudo rm -f syslinux.cfg
-        sudo umount /dev/nbd0p1
-        sudo mount /dev/nbd0p2 ./img/routeros/
-        sudo mkdir -p ./img/routeros/rw/disk/
-        sudo cp keygen.zip ./img/routeros/rw/disk/
-        sudo mkdir -p ./img/routeros/var/pdb/option/
-        sudo cp option-$LATEST_VERSION.npk ./img/routeros/var/pdb/option/image
-        sudo cp routeros-$LATEST_VERSION.npk ./img/routeros/var/pdb/system/image
-        sudo umount /dev/nbd0p2
-        sudo rm -rf ./boot
-        sudo dd if=/dev/zero of=/dev/nbd0 bs=1 count=1 seek=336 conv=notrunc
-        sudo qemu-nbd -d /dev/nbd0
-
-        sudo qemu-img convert -f raw -O qcow2 chr-$LATEST_VERSION.img chr-$LATEST_VERSION.qcow2
-        sudo qemu-img convert -f raw -O vmdk chr-$LATEST_VERSION.img chr-$LATEST_VERSION.vmdk
-        sudo qemu-img convert -f raw -O vpc chr-$LATEST_VERSION.img chr-$LATEST_VERSION.vhd
-        sudo qemu-img convert -f raw -O vhdx chr-$LATEST_VERSION.img chr-$LATEST_VERSION.vhdx
-        sudo qemu-img convert -f raw -O vdi chr-$LATEST_VERSION.img chr-$LATEST_VERSION.vdi
-
-        sudo zip chr-$LATEST_VERSION.qcow2.zip chr-$LATEST_VERSION.qcow2
-        sudo zip chr-$LATEST_VERSION.vmdk.zip chr-$LATEST_VERSION.vmdk
-        sudo zip chr-$LATEST_VERSION.vhd.zip chr-$LATEST_VERSION.vhd
-        sudo zip chr-$LATEST_VERSION.vhdx.zip chr-$LATEST_VERSION.vhdx
-        sudo zip chr-$LATEST_VERSION.vdi.zip chr-$LATEST_VERSION.vdi
-        sudo zip chr-$LATEST_VERSION.img.zip chr-$LATEST_VERSION.img
-
-        sudo rm *.qcow2
-        sudo rm *.vmdk
-        sudo rm *.vhd
-        sudo rm *.vhdx
-        sudo rm *.vdi
-        sudo rm *.img
-
-    - name: Get install-image-${{ env.LATEST_VERSION }}.img
-      run: |
-        sudo wget -nv -O install-image-$LATEST_VERSION.zip https://download.mikrotik.com/routeros/$LATEST_VERSION/install-image-$LATEST_VERSION.zip
-        sudo unzip install-image-$LATEST_VERSION.zip
-        sudo rm install-image-$LATEST_VERSION.zip
-        
-    - name: Patch install-image-${{ env.LATEST_VERSION }}.img
-      run: |
-        sudo mkdir ./install
-        sudo mount -o loop install-image-$LATEST_VERSION.img ./install
-        sudo rm ./install/1.npk
-        NPK_FILES=$(find ./install/*.npk)
-        for file in $NPK_FILES; do
-          sudo -E python3 npk.py sign $file $file
-        done
-        sudo cp routeros-$LATEST_VERSION.npk ./install/1.npk
-        sudo cp keygen.zip ./install/
-        sudo cp option-$LATEST_VERSION.npk ./install/100.npk
-        sudo cp python3-$LATEST_VERSION.npk ./install/101.npk
-        sudo cp linux ./install/
-        sudo umount ./install
-        sudo rm -rf ./install
-        sudo zip install-image-$LATEST_VERSION.zip ./install-image-$LATEST_VERSION.img
-        sudo rm ./install-image-$LATEST_VERSION.img
-
     - name: Delete Release tag ${{ env.LATEST_VERSION }}
       run: |
         HEADER="Authorization: token ${{ secrets.GITHUB_TOKEN }}"
@@ -262,6 +179,4 @@ jobs:
         prerelease:  ${{ matrix.channel == 'testing' }}
         files: |
           mikrotik-${{ env.LATEST_VERSION }}.iso
-          chr-${{ env.LATEST_VERSION }}*.zip
           netinstall-${{ env.LATEST_VERSION }}.zip
-          install-image-${{ env.LATEST_VERSION }}.zip
