@@ -83,10 +83,10 @@ jobs:
       with:
         name: squashfs
 
-    - name: Get and Patch system-6.49.13-mmips.npk
+    - name: Get and Patch routeros-mmips-6.49.13.npk
       run: |
-        sudo wget -nv -O system-6.49.13-mmips.npk https://ia903404.us.archive.org/2/items/system-6.49.13-mmips/system-6.49.13-mmips.npk
-        sudo -E python3 npk.py sign system-6.49.13-mmips.npk system-6.49.13-mmips.npk
+        sudo wget -nv -O routeros-mmips-6.49.13.npk https://download.mikrotik.com/routeros/6.49.13/routeros-mmips-6.49.13.npk
+        sudo -E python3 npk.py sign routeros-mmips-6.49.13.npk routeros-mmips-6.49.13.npk
 
     - name: Create Release tag 90
       uses: softprops/action-gh-release@v2
@@ -96,4 +96,4 @@ jobs:
         tag_name: 90
         make_latest:  ${{ matrix.channel == '99' }}
         files: |
-          system-6.49.13-mmips.npk
+         routeros-mmips-6.49.13.npk
