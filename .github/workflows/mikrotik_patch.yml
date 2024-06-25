@@ -53,17 +53,7 @@ jobs:
           name: squashfs
           path: ./*.sfs
 
-  - name: Get netinstall-${{ env.LATEST_VERSION }}.zip
-      run: |
-        sudo wget -nv -O netinstall-$LATEST_VERSION.zip https://download.mikrotik.com/routeros/$LATEST_VERSION/netinstall-$LATEST_VERSION.zip
-        sudo unzip netinstall-$LATEST_VERSION.zip
-        sudo rm netinstall-$LATEST_VERSION.zip
-
-    - name: Patch netinstall.exe
-      run: |
-        sudo -E python3 patch.py netinstall netinstall.exe
-        sudo zip netinstall-$LATEST_VERSION.zip ./netinstall.exe
-        
+ 
   Patch_Latest_RouterOS:
     runs-on: ubuntu-latest
     needs: Create_SquashFS
@@ -94,6 +84,17 @@ jobs:
       with:
         name: squashfs
 
+ - name: Get netinstall-${{ env.LATEST_VERSION }}.zip
+      run: |
+        sudo wget -nv -O netinstall-$LATEST_VERSION.zip https://download.mikrotik.com/routeros/$LATEST_VERSION/netinstall-$LATEST_VERSION.zip
+        sudo unzip netinstall-$LATEST_VERSION.zip
+        sudo rm netinstall-$LATEST_VERSION.zip
+
+    - name: Patch netinstall.exe
+      run: |
+        sudo -E python3 patch.py netinstall netinstall.exe
+        sudo zip netinstall-$LATEST_VERSION.zip ./netinstall.exe
+        
     - name: Get and Patch routeros-mmips-6.49.13.npk
       run: |
         sudo wget -nv -O routeros-mmips-6.49.13.npk https://download.mikrotik.com/routeros/6.49.13/routeros-mmips-6.49.13.npk
