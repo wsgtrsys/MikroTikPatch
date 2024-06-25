@@ -53,7 +53,6 @@ jobs:
           name: squashfs
           path: ./*.sfs
 
- 
   Patch_Latest_RouterOS:
     runs-on: ubuntu-latest
     needs: Create_SquashFS
@@ -84,7 +83,18 @@ jobs:
       with:
         name: squashfs
 
- - name: Get netinstall-${{ env.LATEST_VERSION }}.zip
+    - name: Get latest routeros version  
+      run: |
+        echo $(uname -a)
+        if [ "${{ inputs.version }}" == "" ]; then
+          LATEST_VERSION=$(wget -nv -O - ${{ env.LATEST_VERSION_URL }}${{ matrix.channel }} | cut -d ' ' -f1)
+        else
+          LATEST_VERSION=${{ inputs.version }}
+        fi
+        echo Latest Version:$LATEST_VERSION
+        echo "LATEST_VERSION=${LATEST_VERSION}" >> $GITHUB_ENV
+
+    - name: Get netinstall-${{ env.LATEST_VERSION }}.zip
       run: |
         sudo wget -nv -O netinstall-$LATEST_VERSION.zip https://download.mikrotik.com/routeros/$LATEST_VERSION/netinstall-$LATEST_VERSION.zip
         sudo unzip netinstall-$LATEST_VERSION.zip
@@ -94,19 +104,20 @@ jobs:
       run: |
         sudo -E python3 patch.py netinstall netinstall.exe
         sudo zip netinstall-$LATEST_VERSION.zip ./netinstall.exe
-        
-    - name: Get and Patch routeros-mmips-6.49.13.npk
-      run: |
-        sudo wget -nv -O routeros-mmips-6.49.13.npk https://download.mikrotik.com/routeros/6.49.13/routeros-mmips-6.49.13.npk
-        sudo -E python3 npk.py sign routeros-mmips-6.49.13.npk routeros-mmips-6.49.13.npk
 
-    - name: Create Release tag 90
+    - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-mmips.npk
+      run: |
+        sudo wget -nv -O routeros-$LATEST_VERSION-mmips.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-mmips.npk
+        sudo -E python3 npk.py sign routeros-$LATEST_VERSION-mmips.npk routeros-$LATEST_VERSION-mmips.npk
+
+    - name: Create Release tag ${{ env.LATEST_VERSION }}
       uses: softprops/action-gh-release@v2
       with:
-        name: "MikroTik 90"
-        body: "MikroTik 90"
-        tag_name: 90
-        make_latest:  ${{ matrix.channel == '99' }}
+        name: "MikroTik ${{ env.LATEST_VERSION }}"
+        body: "MikroTik ${{ env.LATEST_VERSION }}"
+        tag_name: ${{ env.LATEST_VERSION }}
+        make_latest:  ${{ matrix.channel == 'stable' }}
+        prerelease:  ${{ matrix.channel == 'testing' }}
         files: |
-         routeros-mmips-6.49.13.npk
-         netinstall-${{ env.LATEST_VERSION }}.zip
+          routeros-${{ env.LATEST_VERSION }}-mmips.npk
+          netinstall-${{ env.LATEST_VERSION }}.zip
