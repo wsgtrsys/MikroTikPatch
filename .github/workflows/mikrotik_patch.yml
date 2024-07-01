@@ -105,10 +105,10 @@ jobs:
         sudo -E python3 patch.py netinstall netinstall.exe
         sudo zip netinstall-$LATEST_VERSION.zip ./netinstall.exe
 
-    - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-mmips.npk
+    - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-arm.npk
       run: |
-        sudo wget -nv -O routeros-$LATEST_VERSION-mmips.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-mmips.npk
-        sudo -E python3 npk.py sign routeros-$LATEST_VERSION-mmips.npk routeros-$LATEST_VERSION-mmips.npk
+        sudo wget -nv -O routeros-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-arm.npk
+        sudo -E python3 npk.py sign routeros-$LATEST_VERSION-arm.npk routeros-$LATEST_VERSION-arm.npk
 
     - name: Create Release tag ${{ env.LATEST_VERSION }}
       uses: softprops/action-gh-release@v2
@@ -119,5 +119,5 @@ jobs:
         make_latest:  ${{ matrix.channel == 'stable' }}
         prerelease:  ${{ matrix.channel == 'testing' }}
         files: |
-          routeros-${{ env.LATEST_VERSION }}-mmips.npk
+          routeros-${{ env.LATEST_VERSION }}-arm.npk
           netinstall-${{ env.LATEST_VERSION }}.zip
