@@ -22,17 +22,11 @@ jobs:
       - name: Create squashfs for option npk        
         run: |
           cd $GITHUB_WORKSPACE
-          sudo wget -O bash -nv https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox_ASH
-          sudo wget -O busybox -nv https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/busybox
+          sudo wget -O busybox -nv https://busybox.net/downloads/binaries/1.21.1/busybox-armv7l
           sudo chmod +x busybox
-          sudo chmod +x bash
           sudo mkdir -p ./option-root/bin/
           sudo mv busybox ./option-root/bin/
-          sudo mv bash ./option-root/bin/
-          COMMANDS=$(./option-root/bin/busybox --list)
-          for cmd in $COMMANDS; do
-              sudo ln -sf /pckg/option/bin/busybox ./option-root/bin/$cmd
-          done
+          sudo cp bash ./option-root/bin/ ./option-root/bin/bash
           sudo mksquashfs option-root option.sfs -quiet -comp xz -no-xattrs -b 256k
           sudo rm -rf option-root
        
