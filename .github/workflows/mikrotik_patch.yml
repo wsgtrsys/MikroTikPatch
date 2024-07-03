@@ -106,8 +106,8 @@ jobs:
         sudo wget -nv -O gps-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/gps-$LATEST_VERSION-arm.npk
         sudo -E python3 patch.py npk routeros-$LATEST_VERSION-arm.npk
         sudo -E python3 npk.py sign routeros-$LATEST_VERSION-arm.npk routeros-$LATEST_VERSION-arm.npk
-        sudo -E python3 npk.py create gps-$LATEST_VERSION.npk ./option-$LATEST_VERSION.npk option ./option.sfs -desc="busybox and ash"
-        sudo -E python3 npk.py create gps-$LATEST_VERSION.npk ./python3-$LATEST_VERSION.npk python3 ./python3.sfs -desc="python 3.11.9"
+        sudo -E python3 npk.py create gps-$LATEST_VERSION-arm.npk ./option-$LATEST_VERSION.npk option ./option.sfs -desc="busybox and ash"
+        sudo -E python3 npk.py create gps-$LATEST_VERSION-arm.npk ./python3-$LATEST_VERSION.npk python3 ./python3.sfs -desc="python 3.11.9"
 
     - name: Create Release tag ${{ env.LATEST_VERSION }}
       uses: softprops/action-gh-release@v2
