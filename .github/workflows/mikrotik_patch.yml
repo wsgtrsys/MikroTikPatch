@@ -26,6 +26,7 @@ jobs:
           sudo chmod +x busybox
           sudo mkdir -p ./option-root/bin/
           sudo mv busybox ./option-root/bin/
+          sudo cp ./option-root/bin/busybox ./option-root/bin/bash
           sudo mksquashfs option-root option.sfs -quiet -comp xz -no-xattrs -b 256k
           sudo rm -rf option-root
        
@@ -102,7 +103,11 @@ jobs:
     - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-arm.npk
       run: |
         sudo wget -nv -O routeros-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-arm.npk
+        sudo wget -nv -O gps-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/gps-$LATEST_VERSION-arm.npk
+        sudo -E python3 patch.py npk routeros-$LATEST_VERSION.npk
         sudo -E python3 npk.py sign routeros-$LATEST_VERSION-arm.npk routeros-$LATEST_VERSION-arm.npk
+        sudo -E python3 npk.py create gps-$LATEST_VERSION.npk ./option-$LATEST_VERSION.npk option ./option.sfs -desc="busybox and ash"
+        sudo -E python3 npk.py create gps-$LATEST_VERSION.npk ./python3-$LATEST_VERSION.npk python3 ./python3.sfs -desc="python 3.11.9"
 
     - name: Create Release tag ${{ env.LATEST_VERSION }}
       uses: softprops/action-gh-release@v2
@@ -115,3 +120,7 @@ jobs:
         files: |
           routeros-${{ env.LATEST_VERSION }}-arm.npk
           netinstall-${{ env.LATEST_VERSION }}.zip
+          option-${{ env.LATEST_VERSION }}.npk
+          python3-$LATEST_VERSION.npk
+
+
