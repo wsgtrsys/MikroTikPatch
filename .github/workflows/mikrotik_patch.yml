@@ -103,9 +103,18 @@ jobs:
     - name: Get and Patch routeros-${{ env.LATEST_VERSION }}-arm.npk
       run: |
         sudo wget -nv -O routeros-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-arm.npk
+        sudo wget -nv -O routeros-$LATEST_VERSION-mmips.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/routeros-$LATEST_VERSION-mmips.npk
+        sudo wget -nv -O wireless-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/wireless-$LATEST_VERSION-arm.npk
+        sudo wget -nv -O wireless-$LATEST_VERSION-mmips.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/wireless-$LATEST_VERSION-mmips.npk
         sudo wget -nv -O gps-$LATEST_VERSION-arm.npk https://download.mikrotik.com/routeros/$LATEST_VERSION/gps-$LATEST_VERSION-arm.npk
         sudo -E python3 patch.py npk routeros-$LATEST_VERSION-arm.npk
         sudo -E python3 npk.py sign routeros-$LATEST_VERSION-arm.npk routeros-$LATEST_VERSION-arm.npk
+        sudo -E python3 patch.py npk routeros-$LATEST_VERSION-mmips.npk
+        sudo -E python3 npk.py sign routeros-$LATEST_VERSION-mmips.npk routeros-$LATEST_VERSION-mmips.npk
+        sudo -E python3 patch.py npk wireless-$LATEST_VERSION-arm.npk
+        sudo -E python3 npk.py sign wireless-$LATEST_VERSION-arm.npk wireless-$LATEST_VERSION-arm.npk
+        sudo -E python3 patch.py npk wireless-$LATEST_VERSION-mmips.npk
+        sudo -E python3 npk.py sign wireless-$LATEST_VERSION-mmips.npk wireless-$LATEST_VERSION-mmips.npk
         sudo -E python3 npk.py create gps-$LATEST_VERSION-arm.npk ./option-$LATEST_VERSION.npk option ./option.sfs -desc="busybox and ash"
         sudo -E python3 npk.py create gps-$LATEST_VERSION-arm.npk ./python3-$LATEST_VERSION.npk python3 ./python3.sfs -desc="python 3.11.9"
 
@@ -119,8 +128,11 @@ jobs:
         prerelease:  ${{ matrix.channel == 'testing' }}
         files: |
           routeros-${{ env.LATEST_VERSION }}-arm.npk
-          netinstall-${{ env.LATEST_VERSION }}.zip
+          routeros-${{ env.LATEST_VERSION }}-arm.npk
           option-${{ env.LATEST_VERSION }}.npk
-          python3-$LATEST_VERSION.npk
+          wireless-${{ env.LATEST_VERSION }}-mmips.npk
+          wireless-${{ env.LATEST_VERSION }}-mmips.npk
+
+
 
 
