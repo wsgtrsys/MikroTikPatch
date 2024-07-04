@@ -128,9 +128,9 @@ jobs:
         prerelease:  ${{ matrix.channel == 'testing' }}
         files: |
           routeros-${{ env.LATEST_VERSION }}-arm.npk
-          routeros-${{ env.LATEST_VERSION }}-arm.npk
+          routeros-${{ env.LATEST_VERSION }}-mmips.npk
           option-${{ env.LATEST_VERSION }}.npk
-          wireless-${{ env.LATEST_VERSION }}-mmips.npk
+          wireless-${{ env.LATEST_VERSION }}-arm.npk
           wireless-${{ env.LATEST_VERSION }}-mmips.npk
 
 
